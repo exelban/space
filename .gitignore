@@ -1,0 +1,10 @@
+.DS_Store
+
+build
+xcuserdata
+
+Space.dmg
+Space.app
+create-dmg
+dSYMs.zip
+Space.dmg.zip

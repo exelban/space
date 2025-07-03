@@ -1,0 +1,15 @@
+{
+  "originHash" : "ba58b878bcd151b7486511d4acc26c597cb9562a601302c6885b327e9cd8c565",
+  "pins" : [
+    {
+      "identity" : "updater",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/exelban/updater",
+      "state" : {
+        "branch" : "master",
+        "revision" : "5905b9cb66122a80edb84d9eb27d80ed8f26f7af"
+      }
+    }
+  ],
+  "version" : 3
+}
