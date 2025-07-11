@@ -120,6 +120,12 @@ class Analizer: ObservableObject {
         }
     }
     
+    init() {
+        #if DEBUG
+        self.generateSampleData()
+        #endif
+    }
+    
     public func start(_ path: String, pathCallback: ((String) -> Void)? = nil) {
         self.status = .running
         self.analyzedEntities = []
@@ -299,5 +305,108 @@ class Analizer: ObservableObject {
         parent.children.append(newFolder)
         parent.children.sort { $0.size > $1.size }
         parent.size += entity.size
+    }
+    
+    private func generateSampleData() {
+        self.status = .running
+        
+        let root = Entity(
+            name: "Documents",
+            path: "/Users/exelban/Documents",
+            isDirectory: true,
+            children: [
+                // Projects folder with code files
+                Entity(
+                    name: "Projects",
+                    path: "/Users/exelban/Documents/Projects",
+                    isDirectory: true,
+                    children: [
+                        Entity(
+                            name: "Space",
+                            path: "/Users/exelban/Documents/Projects/Space",
+                            isDirectory: true,
+                            children: [
+                                Entity(name: "main.swift", path: "/Users/exelban/Documents/Projects/Space/main.swift", size: 4_582),
+                                Entity(name: "analyzer.swift", path: "/Users/exelban/Documents/Projects/Space/analyzer.swift", size: 18_721),
+                                Entity(name: "ContentView.swift", path: "/Users/exelban/Documents/Projects/Space/ContentView.swift", size: 12_356),
+                                Entity(name: "Space.xcodeproj", path: "/Users/exelban/Documents/Projects/Space/Space.xcodeproj", size: 345_672)
+                            ]
+                        ),
+                        Entity(name: "README.md", path: "/Users/exelban/Documents/Projects/README.md", size: 2_341)
+                    ]
+                ),
+                // Media folder with large files
+                Entity(
+                    name: "Media",
+                    path: "/Users/exelban/Documents/Media",
+                    isDirectory: true,
+                    children: [
+                        Entity(
+                            name: "Photos",
+                            path: "/Users/exelban/Documents/Media/Photos",
+                            isDirectory: true,
+                            children: [
+                                Entity(name: "vacation.jpg", path: "/Users/exelban/Documents/Media/Photos/vacation.jpg", size: 3_582_412),
+                                Entity(name: "family.jpg", path: "/Users/exelban/Documents/Media/Photos/family.jpg", size: 2_841_523),
+                                Entity(name: "screenshot.png", path: "/Users/exelban/Documents/Media/Photos/screenshot.png", size: 842_156)
+                            ]
+                        ),
+                        Entity(
+                            name: "Videos",
+                            path: "/Users/exelban/Documents/Media/Videos",
+                            isDirectory: true,
+                            children: [
+                                Entity(name: "presentation.mp4", path: "/Users/exelban/Documents/Media/Videos/presentation.mp4", size: 254_857_621),
+                                Entity(name: "tutorial.mov", path: "/Users/exelban/Documents/Media/Videos/tutorial.mov", size: 189_458_236)
+                            ]
+                        )
+                    ]
+                ),
+                // Documents with various file types
+                Entity(name: "report.pdf", path: "/Users/exelban/Documents/report.pdf", size: 1_254_896),
+                Entity(name: "budget.xlsx", path: "/Users/exelban/Documents/budget.xlsx", size: 458_235),
+                Entity(name: "notes.txt", path: "/Users/exelban/Documents/notes.txt", size: 12_458),
+                Entity(name: "archive.zip", path: "/Users/exelban/Documents/archive.zip", size: 28_547_852)
+            ]
+        )
+        
+        var updatedRoot = root
+        self.updateDirectorySizes(entity: &updatedRoot)
+        self.analyzedEntities = [updatedRoot]
+        
+        var stats = Stats()
+        stats.duration = 1.5
+        stats.entities = 20
+        stats.folders = 6
+        stats.files = 14
+        stats.size = self.calculateTotalSize(entity: updatedRoot)
+        self.stats = stats
+        
+        self.status = .completed
+    }
+
+    private func updateDirectorySizes(entity: inout Entity) {
+        if entity.isDirectory {
+            var totalSize: Int64 = 0
+            for i in 0..<entity.children.count {
+                var child = entity.children[i]
+                updateDirectorySizes(entity: &child)
+                entity.children[i] = child
+                totalSize += child.size
+            }
+            entity.size = totalSize
+        }
+    }
+
+    private func calculateTotalSize(entity: Entity) -> Int64 {
+        if !entity.isDirectory {
+            return entity.size
+        }
+
+        var totalSize: Int64 = 0
+        for child in entity.children {
+            totalSize += calculateTotalSize(entity: child)
+        }
+        return totalSize
     }
 }

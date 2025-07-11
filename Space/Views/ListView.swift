@@ -145,7 +145,7 @@ struct ListView: View {
             self.flattenedEntities = []
             return
         }
-        self.flattenedEntities = self.flattenHierarchy(children: sortedChildren(rootEntity.children), level: 0)
+        self.flattenedEntities = self.flattenHierarchy(children: self.sortedChildren(rootEntity.children), level: 0)
     }
     
     private func flattenHierarchy(children: [Entity], level: Int) -> [Entity] {
@@ -157,7 +157,7 @@ struct ListView: View {
             result.append(entityWithLevel)
             
             if entity.isDirectory && self.isExpanded(path: entity.path) {
-                result.append(contentsOf: self.flattenHierarchy(children: sortedChildren(entity.children), level: level + 1))
+                result.append(contentsOf: self.flattenHierarchy(children: self.sortedChildren(entity.children), level: level + 1))
             }
         }
         

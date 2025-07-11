@@ -13,6 +13,8 @@ import SwiftUI
 
 @main
 struct SpaceApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @StateObject private var analizer: Analizer = Analizer()
     @State private var searchPath: String = NSHomeDirectory()
     @State private var windowWidth: CGFloat = 0
@@ -22,9 +24,6 @@ struct SpaceApp: App {
             GeometryReader { geometry in
                 ContentView()
                     .environmentObject(self.analizer)
-                    .safeAreaInset(edge: .bottom, content: {
-                        FooterView().environmentObject(self.analizer)
-                    })
                     .toolbar {
                         ToolbarView(analizer: self.analizer, width: $windowWidth)
                     }
@@ -41,6 +40,12 @@ struct SpaceApp: App {
         }
         .windowStyle(.hiddenTitleBar)
         .windowToolbarStyle(.unified)
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
     }
 }
 
@@ -62,7 +67,11 @@ struct ContentView: View {
                         .foregroundColor(.secondary)
                     Spacer()
                 } else {
-                    ListView().environmentObject(self.analizer)
+                    HStack(spacing: 2) {
+                        ListView().environmentObject(self.analizer)
+                        Divider()
+                        DetailsView().environmentObject(self.analizer).frame(width: 250)
+                    }
                 }
             }
         }
